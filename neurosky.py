@@ -2,6 +2,7 @@
 Based on: https://github.com/D1o0g9s/EEGFaceDetection/blob/master/mindwave_code/CollectRawData.py
 Notes:
 - requires mindwave.py
+- change the line labeled "mac version" to run it on other OS
 - run by typing 'python neurosky.py' in the terminal or console
 - configure your experimental settings under SETTINGS
 - trial_permutations are randomly sampled from TARGETS by default
@@ -23,18 +24,18 @@ from os.path import join as pjoin
 SUBJECT_NUMBER = 0
 SESSION_NUMBER = 0
 TRIAL_DURATION = 2000 # ms
-NUM_TRIALS = 2 # number of trials for each target
+NUM_TRIALS = 2 # number of trials in total
 SAMPLING_FREQUENCY = 128 # Hz
-INTER_TRIAL_INTERVAL = 1000 # ms, between targets
+INTER_TRIAL_INTERVAL = 1000 # ms, between trials
 
-TARGETS = {0:'rest'}  # classication targets, eg. {1:'task1', 2:'task2'}
+TARGETS = {0:'rest'}  # classication labels, eg. {1:'task1', 2:'task2'}
                       # NOTE: 0 is reserverd for 'rest'. Unless you just
                       # want to record 'rest' for the entire session, you
                       # should not include the key 0 in this dictionary
 
 ### PATHS
 BASE_PATH = "./"
-DATA_PATH = pjoin(pjoin(BASE_PATH, SUBJECT_NUMBER),SESSION_NUMBER)
+DATA_PATH = pjoin(pjoin(BASE_PATH, str(SUBJECT_NUMBER)),str(SESSION_NUMBER))
 if not os.path.isdir(DATA_PATH):
     os.makedirs(DATA_PATH)
 
@@ -83,7 +84,7 @@ if __name__ == "__main__":
     sampled_data = {'timestamp': [],
                     'raw_value': [],
                     'attention': [],
-                    'target':[]}
+                    'label':[]}
 
     print("Connecting...")
     headset = mindwave.Headset('/dev/tty.MindWaveMobile-SerialPo') # mac version
@@ -115,11 +116,11 @@ if __name__ == "__main__":
                 print("seconds elapsed: " + str(timeDiff))
                 prevTime = timeDiff
 
-            # Track trial time and append target
+            # Track trial time and append label
             if time.time()-trial_stime < TRIAL_DURATION/1000:
-                sampled_data["target"].append(trial_permutation[trial_index])
+                sampled_data["label"].append(trial_permutation[trial_index])
             else:
-                sampled_data["target"].append(0) # 0 means inter-trial interval or rest
+                sampled_data["label"].append(0) # 0 means inter-trial interval or rest
             if time.time()-trial_stime >= TRIAL_DURATION/1000 + INTER_TRIAL_INTERVAL/1000:
                 trial_stime = time.time()
                 if trial_index < len(trial_permutation): # increment trial index to next trial
